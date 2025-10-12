@@ -38,7 +38,19 @@ async def main():
             print("新しいタブにフォーカスを当てます。")
             await checkin_page.bring_to_front()
             await checkin_page.wait_for_load_state('domcontentloaded')
+            
+            # 特定の要素が存在する場合はクリック
+            try:
+                special_element_selector = 'body > div._1NVi6w4R.custom-mihoyo-common-mask > div > div > span'
+                special_element = await checkin_page.query_selector(special_element_selector)
+                if special_element:
+                    print("特定の要素を発見しました。クリックします。")
+                    await special_element.click()
+                    await checkin_page.wait_for_timeout(2000)  # クリック後の反応を待つ
+            except Exception as e:
+                print(f"特定要素のクリック処理でエラーが発生しました: {e}")
 
+                
             # ログインが必要だった場合にループを再開するためのフラグ
             needs_retry = True
             while needs_retry:
@@ -55,6 +67,7 @@ async def main():
 
                 for item in items:
                     # 赤い点のspan要素があるか確認
+
                     red_point = await item.query_selector('span.components-home-assets-__sign-content-test_---red-point---2jUBf9')
                     if red_point:
                         print("クリック対象の要素を見つけました。クリックします。")
